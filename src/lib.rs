@@ -1,4 +1,6 @@
 #![allow(non_camel_case_types)]
+#![allow(deprecated)]
+#![allow(bare_trait_objects)]
 #![cfg_attr(feature = "cargo-clippy", allow(inline_always))]
 
 #[macro_use]

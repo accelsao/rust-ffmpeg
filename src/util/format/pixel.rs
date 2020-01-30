@@ -586,7 +586,7 @@ impl From<AVPixelFormat> for Pixel {
 			AV_PIX_FMT_P016BE => Pixel::P016BE,
 
 			AV_PIX_FMT_NB => Pixel::None,
-			
+
 
             AV_PIX_FMT_D3D11 => Pixel::D3D11,
             AV_PIX_FMT_GRAY9BE => Pixel::GRAY9BE,
@@ -822,9 +822,9 @@ impl Into<AVPixelFormat> for Pixel {
 
 			// --- defaults
 			Pixel::XVMC   => AV_PIX_FMT_XVMC,
-			Pixel::Y400A  => AV_PIX_FMT_Y400A,
-			Pixel::GRAY8A => AV_PIX_FMT_GRAY8A,
-			Pixel::GBR24P => AV_PIX_FMT_GBR24P,
+			Pixel::Y400A  => unimplemented!(),
+			Pixel::GRAY8A => unimplemented!(),
+			Pixel::GBR24P => unimplemented!(),
 
 			Pixel::RGB32   => AV_PIX_FMT_RGB32,
 			Pixel::RGB32_1 => AV_PIX_FMT_RGB32_1,
