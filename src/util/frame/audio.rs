@@ -4,7 +4,7 @@ use std::slice;
 
 use super::Frame;
 use ffi::*;
-use libc::{c_int, c_ulonglong, int64_t};
+use std::os::raw::{c_int, c_ulonglong};
 use util::format;
 use ChannelLayout;
 
@@ -71,7 +71,7 @@ impl Audio {
     #[inline]
     pub fn set_channel_layout(&mut self, value: ChannelLayout) {
         unsafe {
-            av_frame_set_channel_layout(self.as_mut_ptr(), value.bits() as int64_t);
+            av_frame_set_channel_layout(self.as_mut_ptr(), value.bits() as _);
         }
     }
 
@@ -95,7 +95,7 @@ impl Audio {
     #[inline]
     pub fn set_rate(&mut self, value: u32) {
         unsafe {
-            av_frame_set_sample_rate(self.as_mut_ptr(), value as c_int);
+            av_frame_set_sample_rate(self.as_mut_ptr(), value as _);
         }
     }
 
@@ -107,7 +107,7 @@ impl Audio {
     #[inline]
     pub fn set_samples(&mut self, value: usize) {
         unsafe {
-            (*self.as_mut_ptr()).nb_samples = value as c_int;
+            (*self.as_mut_ptr()).nb_samples = value as _;
         }
     }
 

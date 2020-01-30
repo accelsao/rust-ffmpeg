@@ -2,7 +2,7 @@ use std::ptr;
 
 use super::Flags;
 use ffi::*;
-use libc::c_int;
+use std::os::raw::c_int;
 use util::format;
 use {frame, Error};
 
@@ -153,7 +153,7 @@ impl Context {
                 (*input.as_ptr()).linesize.as_ptr() as *const _,
                 0,
                 self.output.height as c_int,
-                (*output.as_mut_ptr()).data.as_ptr() as *const *const _,
+                (*output.as_mut_ptr()).data.as_ptr() as *const *mut _,
                 (*output.as_mut_ptr()).linesize.as_ptr() as *mut _,
             );
         }

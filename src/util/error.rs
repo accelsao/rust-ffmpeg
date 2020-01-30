@@ -5,7 +5,7 @@ use std::io;
 use std::str::from_utf8_unchecked;
 
 use ffi::*;
-use libc::c_int;
+use std::os::raw::c_int;
 
 #[derive(Copy, Clone)]
 pub enum Error {

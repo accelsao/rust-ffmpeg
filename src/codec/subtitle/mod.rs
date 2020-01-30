@@ -12,7 +12,7 @@ use std::mem;
 
 use ffi::AVSubtitleType::*;
 use ffi::*;
-use libc::{c_uint, size_t, uint32_t};
+use std::os::raw::c_uint;
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 pub enum Type {
@@ -77,7 +77,7 @@ impl Subtitle {
     }
 
     pub fn set_start(&mut self, value: u32) {
-        self.0.start_display_time = value as uint32_t;
+        self.0.start_display_time = value as _;
     }
 
     pub fn end(&self) -> u32 {
@@ -85,7 +85,7 @@ impl Subtitle {
     }
 
     pub fn set_end(&mut self, value: u32) {
-        self.0.end_display_time = value as uint32_t;
+        self.0.end_display_time = value as _;
     }
 
     pub fn rects(&self) -> RectIter {
@@ -101,11 +101,11 @@ impl Subtitle {
             self.0.num_rects += 1;
             self.0.rects = av_realloc(
                 self.0.rects as *mut _,
-                (mem::size_of::<*const AVSubtitleRect>() * self.0.num_rects as usize) as size_t,
+                (mem::size_of::<*const AVSubtitleRect>() * self.0.num_rects as usize) as usize,
             ) as *mut _;
 
             let rect =
-                av_mallocz(mem::size_of::<AVSubtitleRect>() as size_t) as *mut AVSubtitleRect;
+                av_mallocz(mem::size_of::<AVSubtitleRect>() as usize) as *mut AVSubtitleRect;
             (*rect).type_ = kind.into();
 
             *self.0.rects.offset((self.0.num_rects - 1) as isize) = rect;

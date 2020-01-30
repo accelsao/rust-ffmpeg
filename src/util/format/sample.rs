@@ -7,7 +7,7 @@ use std::str::from_utf8_unchecked;
 
 use ffi::AVSampleFormat::*;
 use ffi::*;
-use libc::{c_int, uint8_t};
+use std::os::raw::c_int;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum Sample {
@@ -131,7 +131,7 @@ pub struct Buffer {
     pub samples: usize,
     pub align: bool,
 
-    buffer: *mut *mut uint8_t,
+    buffer: *mut *mut u8,
     size: c_int,
 }
 
@@ -142,9 +142,9 @@ impl Buffer {
             av_samples_get_buffer_size(
                 ptr::null_mut(),
                 i32::from(channels),
-                samples as c_int,
+                samples as _,
                 format.into(),
-                !align as c_int,
+                !align as _,
             ) as usize
         }
     }
@@ -166,9 +166,9 @@ impl Buffer {
                 &mut buf.buffer,
                 &mut buf.size,
                 i32::from(channels),
-                samples as c_int,
+                samples as _,
                 format.into(),
-                !align as c_int,
+                !align as _,
             );
 
             buf
@@ -206,7 +206,7 @@ impl Clone for Buffer {
                 mem::transmute(source.buffer),
                 0,
                 0,
-                source.samples as c_int,
+                source.samples as _,
                 i32::from(source.channels),
                 source.format.into(),
             );
