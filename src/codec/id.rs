@@ -1,9 +1,9 @@
 use std::ffi::CStr;
 use std::str::from_utf8_unchecked;
 
-use ffi::*;
 use ffi::AVCodecID::*;
-use ::util::media;
+use ffi::*;
+use util::media;
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
@@ -298,6 +298,7 @@ pub enum Id {
 	ADPCM_G722,
 	ADPCM_IMA_APC,
 	ADPCM_VIMA,
+    #[cfg(not(feature = "ffmpeg4"))]
 	VIMA,
 
 	ADPCM_AFC,
@@ -398,6 +399,8 @@ pub enum Id {
 	ON2AVC,
 	DSS_SP,
 
+    #[cfg(feature = "ffmpeg4")]
+    CODEC2,
 	FFWAVESYNTH,
 	SONIC,
 	SONIC_LS,
@@ -472,21 +475,32 @@ pub enum Id {
 	PCM_F24LE,
 	ATRAC3AL,
 	ATRAC3PAL,
+
+    BITPACKED,
+    MSCC,
+    SRGC,
+    SVG,
+    GDV,
+    FITS,
+    GREMLIN_DPCM,
+    DOLBY_E,
+    #[cfg(feature = "ffmpeg4")]
+    APTX,
+    #[cfg(feature = "ffmpeg4")]
+    APTX_HD,
+    #[cfg(feature = "ffmpeg4")]
+    SBC,
 }
 
 impl Id {
 	pub fn medium(&self) -> media::Type {
-		unsafe {
-			media::Type::from(avcodec_get_type((*self).into()))
+        unsafe { media::Type::from(avcodec_get_type((*self).into())) }
 		}
-	}
 
 	pub fn name(&self) -> &'static str {
-		unsafe {
-			from_utf8_unchecked(CStr::from_ptr(avcodec_get_name((*self).into())).to_bytes())
+        unsafe { from_utf8_unchecked(CStr::from_ptr(avcodec_get_name((*self).into())).to_bytes()) }
 		}
 	}
-}
 
 impl From<AVCodecID> for Id {
 	fn from(value: AVCodecID) -> Self {
@@ -878,6 +892,8 @@ impl From<AVCodecID> for Id {
 			AV_CODEC_ID_ON2AVC               => Id::ON2AVC,
 			AV_CODEC_ID_DSS_SP               => Id::DSS_SP,
 
+            #[cfg(feature = "ffmpeg4")]
+            AV_CODEC_ID_CODEC2 => Id::CODEC2,
 			AV_CODEC_ID_FFWAVESYNTH          => Id::FFWAVESYNTH,
 			AV_CODEC_ID_SONIC                => Id::SONIC,
 			AV_CODEC_ID_SONIC_LS             => Id::SONIC_LS,
@@ -951,7 +967,23 @@ impl From<AVCodecID> for Id {
 			AV_CODEC_ID_PCM_F24LE       => Id::PCM_F24LE,
 			AV_CODEC_ID_ATRAC3AL        => Id::ATRAC3AL,
 			AV_CODEC_ID_ATRAC3PAL       => Id::ATRAC3PAL,
-			_ => unimplemented!(),
+			
+
+            AV_CODEC_ID_BITPACKED => Id::BITPACKED,
+            AV_CODEC_ID_MSCC => Id::MSCC,
+            AV_CODEC_ID_SRGC => Id::SRGC,
+            AV_CODEC_ID_SVG => Id::SVG,
+            AV_CODEC_ID_GDV => Id::GDV,
+            AV_CODEC_ID_FITS => Id::FITS,
+            AV_CODEC_ID_GREMLIN_DPCM => Id::GREMLIN_DPCM,
+            AV_CODEC_ID_DOLBY_E => Id::DOLBY_E,
+            #[cfg(feature = "ffmpeg4")]
+            AV_CODEC_ID_APTX => Id::APTX,
+            #[cfg(feature = "ffmpeg4")]
+            AV_CODEC_ID_APTX_HD => Id::APTX_HD,
+            #[cfg(feature = "ffmpeg4")]
+            AV_CODEC_ID_SBC => Id::SBC,
+_ => unimplemented!(),
 		}
 	}
 }
@@ -1249,6 +1281,7 @@ impl Into<AVCodecID> for Id {
 			Id::ADPCM_G722            => AV_CODEC_ID_ADPCM_G722,
 			Id::ADPCM_IMA_APC         => AV_CODEC_ID_ADPCM_IMA_APC,
 			Id::ADPCM_VIMA            => AV_CODEC_ID_ADPCM_VIMA,
+            #[cfg(not(feature = "ffmpeg4"))]
 			Id::VIMA                  => AV_CODEC_ID_VIMA,
 
 			Id::ADPCM_AFC             => AV_CODEC_ID_ADPCM_AFC,
@@ -1349,6 +1382,8 @@ impl Into<AVCodecID> for Id {
 			Id::ON2AVC               => AV_CODEC_ID_ON2AVC,
 			Id::DSS_SP               => AV_CODEC_ID_DSS_SP,
 
+            #[cfg(feature = "ffmpeg4")]
+            Id::CODEC2 => AV_CODEC_ID_CODEC2,
 			Id::FFWAVESYNTH          => AV_CODEC_ID_FFWAVESYNTH,
 			Id::SONIC                => AV_CODEC_ID_SONIC,
 			Id::SONIC_LS             => AV_CODEC_ID_SONIC_LS,
@@ -1423,6 +1458,21 @@ impl Into<AVCodecID> for Id {
 			Id::PCM_F24LE  => AV_CODEC_ID_PCM_F24LE,
 			Id::ATRAC3AL   => AV_CODEC_ID_ATRAC3AL,
 			Id::ATRAC3PAL  => AV_CODEC_ID_ATRAC3PAL,
+
+            Id::BITPACKED => AV_CODEC_ID_BITPACKED,
+            Id::MSCC => AV_CODEC_ID_MSCC,
+            Id::SRGC => AV_CODEC_ID_SRGC,
+            Id::SVG => AV_CODEC_ID_SVG,
+            Id::GDV => AV_CODEC_ID_GDV,
+            Id::FITS => AV_CODEC_ID_FITS,
+            Id::GREMLIN_DPCM => AV_CODEC_ID_GREMLIN_DPCM,
+            Id::DOLBY_E => AV_CODEC_ID_DOLBY_E,
+            #[cfg(feature = "ffmpeg4")]
+            Id::APTX => AV_CODEC_ID_APTX,
+            #[cfg(feature = "ffmpeg4")]
+            Id::APTX_HD => AV_CODEC_ID_APTX_HD,
+            #[cfg(feature = "ffmpeg4")]
+            Id::SBC => AV_CODEC_ID_SBC,
 		}
 	}
 }

@@ -1,10 +1,10 @@
 use std::error;
 use std::ffi::{CStr, CString, NulError};
 use std::fmt;
-use std::str::{FromStr, from_utf8_unchecked};
+use std::str::{from_utf8_unchecked, FromStr};
 
-use ffi::*;
 use ffi::AVPixelFormat::*;
+use ffi::*;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum Pixel {
@@ -113,6 +113,7 @@ pub enum Pixel {
 	YUV444P10LE,
 	YUV422P9BE,
 	YUV422P9LE,
+    #[cfg(not(feature = "ffmpeg4"))]
 	VDA_VLD,
 
 	GBRP,
@@ -157,6 +158,7 @@ pub enum Pixel {
 
 	YVYU422,
 
+    #[cfg(not(feature = "ffmpeg4"))]
 	VDA,
 
 	YA16BE,
@@ -220,7 +222,6 @@ pub enum Pixel {
 	VIDEOTOOLBOX,
 
 	// --- defaults
-	#[cfg(feature = "ff_api_xvmc")]
 	XVMC,
 	Y400A,
 	GRAY8A,
@@ -301,6 +302,17 @@ pub enum Pixel {
 	GRAY10LE,
 	P016LE,
 	P016BE,
+
+    D3D11,
+    GRAY9BE,
+    GRAY9LE,
+    GBRPF32BE,
+    GBRPF32LE,
+    GBRAPF32BE,
+    GBRAPF32LE,
+    DRM_PRIME,
+    #[cfg(feature = "ffmpeg4")]
+    OPENCL,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -327,27 +339,19 @@ impl Descriptor {
 	}
 
 	pub fn name(self) -> &'static str {
-		unsafe {
-			from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).name).to_bytes())
-		}
+        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).name).to_bytes()) }
 	}
 
 	pub fn nb_components(self) -> u8 {
-		unsafe {
-			(*self.as_ptr()).nb_components
-		}
+        unsafe { (*self.as_ptr()).nb_components }
 	}
 
 	pub fn log2_chroma_w(self) -> u8 {
-		unsafe {
-			(*self.as_ptr()).log2_chroma_w
-		}
+        unsafe { (*self.as_ptr()).log2_chroma_w }
 	}
 
 	pub fn log2_chroma_h(self) -> u8 {
-		unsafe {
-			(*self.as_ptr()).log2_chroma_h
-		}
+        unsafe { (*self.as_ptr()).log2_chroma_h }
 	}
 }
 
@@ -372,6 +376,7 @@ impl From<AVPixelFormat> for Pixel {
 			AV_PIX_FMT_YUVJ420P        => Pixel::YUVJ420P,
 			AV_PIX_FMT_YUVJ422P        => Pixel::YUVJ422P,
 			AV_PIX_FMT_YUVJ444P        => Pixel::YUVJ444P,
+            AV_PIX_FMT_XVMC => Pixel::XVMC,
 			#[cfg(feature = "ff_api_xvmc")]
 			AV_PIX_FMT_XVMC_MPEG2_MC   => Pixel::XVMC_MPEG2_MC,
 			#[cfg(feature = "ff_api_xvmc")]
@@ -458,6 +463,7 @@ impl From<AVPixelFormat> for Pixel {
 			AV_PIX_FMT_YUV444P10LE => Pixel::YUV444P10LE,
 			AV_PIX_FMT_YUV422P9BE  => Pixel::YUV422P9BE,
 			AV_PIX_FMT_YUV422P9LE  => Pixel::YUV422P9LE,
+            #[cfg(not(feature = "ffmpeg4"))]
 			AV_PIX_FMT_VDA_VLD     => Pixel::VDA_VLD,
 
 			AV_PIX_FMT_GBRP     => Pixel::GBRP,
@@ -502,6 +508,7 @@ impl From<AVPixelFormat> for Pixel {
 
 			AV_PIX_FMT_YVYU422 => Pixel::YVYU422,
 
+            #[cfg(not(feature = "ffmpeg4"))]
 			AV_PIX_FMT_VDA => Pixel::VDA,
 
 			AV_PIX_FMT_YA16BE => Pixel::YA16BE,
@@ -579,7 +586,19 @@ impl From<AVPixelFormat> for Pixel {
 			AV_PIX_FMT_P016BE => Pixel::P016BE,
 
 			AV_PIX_FMT_NB => Pixel::None,
-			_ => unimplemented!(),
+			
+
+            AV_PIX_FMT_D3D11 => Pixel::D3D11,
+            AV_PIX_FMT_GRAY9BE => Pixel::GRAY9BE,
+            AV_PIX_FMT_GRAY9LE => Pixel::GRAY9LE,
+            AV_PIX_FMT_GBRPF32BE => Pixel::GBRPF32BE,
+            AV_PIX_FMT_GBRPF32LE => Pixel::GBRPF32LE,
+            AV_PIX_FMT_GBRAPF32BE => Pixel::GBRAPF32BE,
+            AV_PIX_FMT_GBRAPF32LE => Pixel::GBRAPF32LE,
+            AV_PIX_FMT_DRM_PRIME => Pixel::DRM_PRIME,
+            #[cfg(feature = "ffmpeg4")]
+            AV_PIX_FMT_OPENCL => Pixel::OPENCL,
+_ => unimplemented!(),
 		}
 	}
 }
@@ -693,6 +712,7 @@ impl Into<AVPixelFormat> for Pixel {
 			Pixel::YUV444P10LE => AV_PIX_FMT_YUV444P10LE,
 			Pixel::YUV422P9BE  => AV_PIX_FMT_YUV422P9BE,
 			Pixel::YUV422P9LE  => AV_PIX_FMT_YUV422P9LE,
+            #[cfg(not(feature = "ffmpeg4"))]
 			Pixel::VDA_VLD     => AV_PIX_FMT_VDA_VLD,
 
 			Pixel::GBRP     => AV_PIX_FMT_GBRP,
@@ -737,6 +757,7 @@ impl Into<AVPixelFormat> for Pixel {
 
 			Pixel::YVYU422 => AV_PIX_FMT_YVYU422,
 
+            #[cfg(not(feature = "ffmpeg4"))]
 			Pixel::VDA => AV_PIX_FMT_VDA,
 
 			Pixel::YA16BE => AV_PIX_FMT_YA16BE,
@@ -880,6 +901,17 @@ impl Into<AVPixelFormat> for Pixel {
 			Pixel::GRAY10LE => AV_PIX_FMT_GRAY10LE,
 			Pixel::P016LE => AV_PIX_FMT_P016LE,
 			Pixel::P016BE => AV_PIX_FMT_P016BE,
+
+            Pixel::D3D11 => AV_PIX_FMT_D3D11,
+            Pixel::GRAY9BE => AV_PIX_FMT_GRAY9BE,
+            Pixel::GRAY9LE => AV_PIX_FMT_GRAY9LE,
+            Pixel::GBRPF32BE => AV_PIX_FMT_GBRPF32BE,
+            Pixel::GBRPF32LE => AV_PIX_FMT_GBRPF32LE,
+            Pixel::GBRAPF32BE => AV_PIX_FMT_GBRAPF32BE,
+            Pixel::GBRAPF32LE => AV_PIX_FMT_GBRAPF32LE,
+            Pixel::DRM_PRIME => AV_PIX_FMT_DRM_PRIME,
+            #[cfg(feature = "ffmpeg4")]
+            Pixel::OPENCL => AV_PIX_FMT_OPENCL,
 		}
 	}
 }
@@ -894,7 +926,7 @@ impl fmt::Display for ParsePixelError {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match *self {
 			ParsePixelError::NulError(ref e) => e.fmt(f),
-			ParsePixelError::UnknownFormat => write!(f, "unknown pixel format")
+            ParsePixelError::UnknownFormat => write!(f, "unknown pixel format"),
 		}
 	}
 }
@@ -903,14 +935,14 @@ impl error::Error for ParsePixelError {
 	fn description(&self) -> &str {
 		match *self {
 			ParsePixelError::NulError(ref e) => e.description(),
-			ParsePixelError::UnknownFormat => "unknown pixel format"
+            ParsePixelError::UnknownFormat => "unknown pixel format",
 		}
 	}
 
 	fn cause(&self) -> Option<&error::Error> {
 		match *self {
 			ParsePixelError::NulError(ref e) => Some(e),
-			ParsePixelError::UnknownFormat => None
+            ParsePixelError::UnknownFormat => None,
 		}
 	}
 }
